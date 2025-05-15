@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:batch="http://www.springframework.org/schema/batch"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/batch http://www.springframework.org/schema/batch/spring-batch.xsd
+           http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <bean id="XmlToJsonReader" class="com.example.chunks.XmlToJsonChunks.XmlToJsonReader"></bean>
+    <bean id="XmlToJsonProcessor" class="com.example.chunks.XmlToJsonChunks.XmlToJsonProcessor"></bean>
+    <bean id="XmlToJsonWriter" class="com.example.chunks.XmlToJsonChunks.XmlToJsonWriter"></bean>
+
+     <bean id="jobRepository" class="org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+
+     <bean id="jobLauncher" class="org.springframework.batch.core.launch.support.SimpleJobLauncher">
+        <property name="jobLauncher" ref="jobLauncher"/>
+                <property name="job" ref="xmlToJsonJob"/>
+        
+    </bean>
+    
+    <batch:job id="xmlToJsonJob">
+        <batch:step id="xmlToJsonStep">
+            <batch:tasklet>
+                <batch:chunk reader="XmlToJsonReader"
+                             processor="XmlToJsonProcessor"
+                             writer="XmlToJsonWriter"
+                             commit-interval="1"/>
+            </batch:tasklet>
+        </batch:step>
+    </batch:job>
+    
+    <task:scheduler id="scheduler" pool-size="1"/>
+    <task:scheduled-tasks scheduler="scheduler">
+        <task:scheduled ref="jobRunner" method="runJob" fixed-rate="60000"/>
+    </task:scheduled-tasks>
+    
+    <bean id="jobRunner" class="com.example.chunks.XmlToJsonChunks.JobRunner">
+        <property name="jobLauncher" ref="jobLauncher"/>
+        <property name="job" ref="xmlToJsonJob"/>
+    </bean>
+
+</beans>
+   
+      

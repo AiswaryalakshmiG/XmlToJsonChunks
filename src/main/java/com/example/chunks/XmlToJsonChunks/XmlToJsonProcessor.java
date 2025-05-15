@@ -7,8 +7,9 @@ import org.springframework.batch.item.ItemProcessor;
 public class XmlToJsonProcessor implements ItemProcessor<String, String> {
     @Override
     public String process(String xmlContent) throws Exception {
-		JSONObject jsonObject = XML.toJSONObject(xmlContent);
-return jsonObject.toString(4);
+        System.out.println("Processing XML to JSON");
+        JSONObject jsonObject = XML.toJSONObject(xmlContent);
+        return jsonObject.toString(4);
     }
-
 }
+
